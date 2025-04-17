@@ -17,7 +17,19 @@ class AStarPathfinder:
             wall_influence (float): Fator de influência da proximidade das paredes.
             buffer_factor (float): Fator de escala da distância para influência das paredes.
         """
-        pass
+        self.start = start
+        self.goal = goal
+        self.wall_influence = wall_influence
+        self.buffer_factor = buffer_factor
+        self.GOAL_REACHEABLE = False  
+        
+        # Prepara o mapa, expandindo suas bordas e ajustando o array.
+        self.map = map_array.copy()
+        self.map_array = self.preprocess_map(map_array)
+
+        # Cria um campo potencial baseado no mapa para influenciar o caminho.
+        self.potential_field = self.create_potential_field()
+        
 
     def preprocess_map(self, map_array):
         """
