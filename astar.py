@@ -3,68 +3,70 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 from scipy.ndimage import distance_transform_edt
+import math
 
 class AStarPathfinder:
-
-    def __init__(self, map_array, start, goal, wall_influence=5.0, buffer_factor=2.0):
+    def __init__(self, map_array: np.array, start: tuple, goal: tuple, wall_influence=5.0, buffer_factor=2.0):
         """
-        Inicializa o caminho A* e configura os parâmetros.
-        
+        Inicializa o A* com mapa, ponto inicial, objetivo e parâmetros de influência.
+
         Args:
-            map_array (np.array): O mapa representado como um array numpy (imagem binária).
-            start (tuple): O ponto inicial (YY, XX) no mapa.
-            goal (tuple): O ponto objetivo (YY, XX) no mapa.
-            wall_influence (float): Fator de influência da proximidade das paredes.
-            buffer_factor (float): Fator de escala da distância para influência das paredes.
+            map_array (np.array): Mapa binário (obstáculos e caminho livre).
+            start (tuple): Ponto inicial (linha, coluna).
+            goal (tuple): Ponto objetivo (linha, coluna).
+            wall_influence (float): Peso da proximidade das paredes.
+            buffer_factor (float): Escala da influência das paredes.
         """
         pass
 
-    def preprocess_map(self, map_array):
+    def preprocess_map(self, map_array: np.array) -> np.array:
         """
-        Processa o mapa para ajustar os limites e preparar o array de ocupação.
-        
+        Ajusta o mapa, convertendo valores intermediários para obstáculos.
+
         Args:
-            map_array (np.array): O array representando o mapa.
-        
+            map_array (np.array): Mapa original.
+
         Returns:
-            np.array: O array processado com os limites ajustados.
+            np.array: Mapa processado.
         """
         return None
 
-    def create_potential_field(self):
+    def create_potential_field(self) -> np.array:
         """
-        Cria um campo potencial baseado na proximidade das paredes.
+        Gera campo potencial com base na distância de obstáculos.
 
         Returns:
-            np.array: O campo potencial gerado a partir da distância para obstáculos.
+            np.array: Campo potencial.
         """
         return None
 
-    def heuristic(self, a, b):
+    def heuristic(self, a: tuple, b: tuple) -> float:
         """
-        Função heurística.
-        
+        Calcula a heurística entre dois pontos.
+
         Args:
-            a (tuple): O primeiro ponto (x, y).
-            b (tuple): O segundo ponto (x, y).
-        
+            a (tuple): Ponto A.
+            b (tuple): Ponto B.
+
         Returns:
             float: Resultado da heurística.
         """
+
         return None
 
     def find_path(self):
         """
-        Encontra o caminho do ponto inicial ao ponto objetivo usando o algoritmo A*.
+        Executa o algoritmo A* para encontrar caminho até o objetivo.
 
         Returns:
-            list: O caminho encontrado como uma lista de tuplas (x, y), ou None se o caminho não for encontrado.
+            dict: Predecessores dos nós no caminho. Se o caminho não for encontrado, retorna None.
+            tuple: O ponto final (objetivo) ou None se não encontrado.
         """
-        
-        print("Caminho não encontrado")
-        return None
 
-    def reconstruct_path(self, came_from, current):
+        print("Caminho não encontrado")
+        return None, None
+
+    def reconstruct_path(self, came_from: dict, current: tuple) -> list:
         """
         Reconstrói o caminho a partir do ponto final até o inicial.
         
@@ -73,40 +75,41 @@ class AStarPathfinder:
             current (tuple): O ponto final (objetivo).
         
         Returns:
-            list: O caminho reconstruído.
+            list: Lista de tuplas com caminho reconstruído.
         """
         return None
 
-    def know_path(self, path):
+    def know_path(self, path: list) -> list:
         """
-        Verifica se o caminho está em uma área conhecida e ajusta o caminho se necessário.
+        Remove trechos desconhecidos e ajusta o caminho, se necessário.
 
         Args:
-            path (list): O caminho completo.
-        
+            path (list): Caminho completo.
+
         Returns:
-            list: O caminho ajustado.
+            list: Caminho ajustado.
         """
         return None
 
-    def simplify_path(self, path):
+    def simplify_path(self, path: list) -> list:
         """
         Simplifica o caminho removendo direções repetidas.
         
         Args:
-            path (list): O caminho completo.
-        
+            path (list): Caminho completo.
+
         Returns:
-            list: O caminho simplificado.
+            list: Caminho simplificado.
         """
         return None
 
-    def plot_path(self, path):
+    def plot_path(self, path: list, simplified_path: list):
         """
-        Plota o mapa e o caminho encontrado, incluindo o caminho simplificado.
+        Exibe o mapa com o caminho completo e o simplificado.
 
         Args:
             path (list): O caminho completo encontrado.
+            simplified_path (list): O caminho simplificado encontrado.
         """
         simplified_path = self.simplify_path(path)
 
@@ -117,7 +120,7 @@ class AStarPathfinder:
 
         if path:
             path_x, path_y = zip(*path)
-            plt.plot(path_y, path_x, color='yellow', linewidth=1, label='Caminho Completo')
+            plt.plot(path_y, path_x, color='magenta', linewidth=1, label='Caminho Completo')
             simp_x, simp_y = zip(*simplified_path)
             plt.plot(simp_y, simp_x, color='red', linewidth=2, linestyle='--', label='Caminho Simplificado')
         else:
@@ -127,7 +130,41 @@ class AStarPathfinder:
         plt.axis('equal')
         plt.show()
 
-def prep_map(map_path):
+    def run(self, show_path=True):
+        """
+        Essa função é chamada pelo navegador para executar o algoritmo A* e gerar o caminho.
+        Executa o processo completo: busca, reconstrução, simplificação e visualização do caminho.
+        
+        Args:
+            show_path (bool): Se True, exibe o caminho graficamente.
+
+        Returns:
+            list or None: Caminho simplificado ou None se não encontrado.
+        """
+        print("Iniciando busca pelo caminho...")
+        came_from, final_node = self.find_path()
+
+        if final_node:
+            print("Reconstruindo caminho...")
+            path = self.reconstruct_path(came_from, final_node)
+            
+            print("Robo não anda no disconhecido")
+            path = self.know_path(path)
+
+            print("Caminho encontrado, simplificando...")
+            simplified_path = self.simplify_path(path)
+
+            print("Plotando o caminho...")
+            if show_path:
+                self.plot_path(path, simplified_path)
+            
+            return simplified_path
+        else:
+            print("Nenhum caminho pôde ser encontrado.")
+            return None
+
+
+def prep_map(map_path: str) -> np.array:
     """
     Prepara o mapa carregando e processando a imagem de entrada.
 
@@ -149,15 +186,12 @@ def prep_map(map_path):
     map_array = np.pad(map_array, ((0, 200), (0, 200)), 'constant', constant_values=128)
     return map_array
 
+
 def main():
-    """
-    Função principal para executar o caminho A*.
-    """
-    map_array = prep_map('map4.pgm')
+    map_array = prep_map('map5.pgm')
     astar = AStarPathfinder(map_array, (60, 20), (60, 120), wall_influence=10.0, buffer_factor=3.0)
-    path = astar.find_path()
-    astar.plot_path(path)
-    
+    astar.run()
+
 
 if __name__ == '__main__':
     main()
